@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindCare | Hope Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page">
+    <section class="card hero">
+        <h1>🌿 MindCare - Mental Health Support</h1>
+        <p>
+            Safe, compassionate, and immediate emotional support for people under stress,
+            especially in underserved communities.
+        </p>
+        <div class="cta-row">
+            <a class="btn btn-primary" href="/chat">💬 Open Hope Chat</a>
+            <a class="btn btn-secondary" href="/mood">📊 Track Mood</a>
+            <a class="btn btn-soft" href="/admin">🛠 Admin</a>
+        </div>
+    </section>
+
+    <section class="problem-section">
+        <h2>🧩 Problem Templates + Ready Solutions</h2>
+        <p class="small">Choose your situation and start with a structured solution in one click.</p>
+        <div class="template-grid">
+            {% for item in templates %}
+            <article class="card template-card">
+                <h3>{{ item.emoji }} {{ item.title }}</h3>
+                <p><strong>Problem:</strong> {{ item.problem }}</p>
+                <p><strong>Starter Solution:</strong> {{ item.solution }}</p>
+                <a class="btn btn-secondary" href="/chat?prefill={{ item.chat_prompt|urlencode }}&mode=detailed">Open Detailed Chat</a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | MindCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page">
+    <section class="card chat-panel">
+        <h2>🛠 Admin Dashboard</h2>
+
+        <h3>💬 Chat Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Bot</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if chats %}
+                    {% for chat in chats|reverse %}
+                    <tr>
+                        <td>{{ chat.time }}</td>
+                        <td>{{ chat.user }}</td>
+                        <td>{{ chat.bot }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="3">No chat logs yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <h3>📈 Mood Logs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Mood</th>
+                    <th>Note</th>
+                    <th>Suggested Schedule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if moods %}
+                    {% for mood in moods|reverse %}
+                    <tr>
+                        <td>{{ mood.time }}</td>
+                        <td>{{ mood.mood }}</td>
+                        <td>{{ mood.note or '-' }}</td>
+                        <td>{{ mood.plan or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="4">No mood logs yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <p><a href="/">← Back to Home</a></p>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker | MindCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page">
+    <section class="card chat-panel">
+        <h2>📊 Daily Mood Tracker</h2>
+        <form method="POST" class="mood-form">
+            <select name="mood" required>
+                <option value="😊 Hopeful">😊 Hopeful</option>
+                <option value="😐 Neutral">😐 Neutral</option>
+                <option value="😔 Low">😔 Low</option>
+                <option value="😣 Stressed">😣 Stressed</option>
+                <option value="😡 Frustrated">😡 Frustrated</option>
+            </select>
+            <textarea name="note" placeholder="Optional note: What happened today?"></textarea>
+            <button type="submit" class="btn btn-secondary">Save Entry</button>
+        </form>
+
+        {% if latest_plan %}
+        <div class="mood-plan-box">
+            <h3>🗓️ Your Suggested Schedule</h3>
+            <p class="small">Generated from your latest mood entry.</p>
+            <pre>{{ latest_plan }}</pre>
+        </div>
+        {% endif %}
+
+        <h3>🗂 Mood History</h3>
+        <div class="log-list">
+            {% if moods %}
+                {% for m in moods|reverse %}
+                    <p><strong>{{ m.time }}</strong> - {{ m.mood }}{% if m.note %} | {{ m.note }}{% endif %}</p>
+                {% endfor %}
+            {% else %}
+                <p>No entries yet. Start tracking today.</p>
+            {% endif %}
+        </div>
+
+        <p><a href="/">← Back to Home</a></p>
+    </section>
+</div>
+</body>
+</html>

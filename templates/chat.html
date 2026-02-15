@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hope Chat | MindCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page layout">
+    <aside class="card sidebar">
+        <h3>💙 Quick Relief Tools</h3>
+        <p class="small">Tap a prompt if typing feels hard.</p>
+
+        <div class="quick-actions">
+            <button type="button" onclick="sendPreset('I feel stressed and overwhelmed.')">😣 Stress</button>
+            <button type="button" onclick="sendPreset('I feel anxious right now.')">😟 Anxiety</button>
+            <button type="button" onclick="sendPreset('I feel lonely and low.')">🥺 Lonely</button>
+            <button type="button" onclick="sendPreset('I cannot sleep well at night.')">🌙 Sleep</button>
+            <button type="button" onclick="sendPreset('Give me a detailed weekly timetable for depression recovery.', 'timetable')">🗓️ Timetable</button>
+            <button type="button" onclick="sendPreset('I need detailed solution for my mental health problem.', 'detailed')">🧭 Detailed Plan</button>
+            <button type="button" onclick="sendPreset('I need hope right now.')">✨ Hope</button>
+        </div>
+
+        <div class="feature-list">
+            <p>✅ Understands user intent</p>
+            <p>✅ Gives detailed structured answers</p>
+            <p>✅ Creates weekly timetable</p>
+            <p>✅ Keeps short conversation memory</p>
+        </div>
+
+        <div class="breath-box">
+            <strong>🫁 60s Breathing Coach</strong>
+            <p id="breathStatus" class="breath-status">Ready: Tap Start</p>
+            <button type="button" class="btn btn-soft" onclick="startBreathing()">Start</button>
+        </div>
+
+        <div class="alert-box">
+            <strong>🚨 Need urgent help?</strong>
+            <p class="small">
+                US/Canada: Call or text <strong>988</strong><br>
+                India: <strong>14416</strong> (Tele-MANAS)<br>
+                Immediate danger: Call local emergency services.
+            </p>
+        </div>
+
+        <p><a href="/">← Back to Home</a></p>
+    </aside>
+
+    <main class="card chat-panel">
+        <h2>💬 Peace Chatbox</h2>
+        <p class="small">Supportive wellness chat for emotional care and practical routines.</p>
+
+        <div class="mode-row">
+            <label for="modeSelect">Response Mode</label>
+            <select id="modeSelect">
+                <option value="auto">Auto</option>
+                <option value="detailed">Detailed</option>
+                <option value="timetable">Weekly Timetable</option>
+            </select>
+            <button class="btn btn-soft" type="button" onclick="copyLastBotMessage()">📋 Copy Last Plan</button>
+        </div>
+
+        <div id="chatBox" class="chat-stream">
+            <div class="robot-sticker" aria-hidden="true">
+                <span class="robot-face">🤖</span>
+                <span class="robot-wave">👋</span>
+            </div>
+            <div class="msg bot-msg">🌈 You are not alone. I understand your concern and can generate a detailed solution + weekly timetable.</div>
+        </div>
+        <div id="typing" class="typing">MindCare is typing...</div>
+
+        <div class="input-row">
+            <input id="userInput" type="text" placeholder="Type what's on your mind..." maxlength="600">
+            <button type="button" class="btn btn-primary" onclick="sendMessage()">Send</button>
+        </div>
+    </main>
+</div>
+
+<script>
+const inputEl = document.getElementById("userInput");
+const chatBox = document.getElementById("chatBox");
+const typing = document.getElementById("typing");
+const modeSelect = document.getElementById("modeSelect");
+let lastBotMessage = "";
+
+inputEl.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+});
+
+function appendMessage(text, type) {
+    const msg = document.createElement("div");
+    msg.className = `msg ${type === "user" ? "user-msg" : "bot-msg"}`;
+    msg.textContent = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if (type === "bot") {
+        lastBotMessage = text;
+    }
+}
+
+function sendPreset(text, mode = "auto") {
+    inputEl.value = text;
+    modeSelect.value = mode;
+    sendMessage();
+}
+
+function sendMessage() {
+    const message = inputEl.value.trim();
+    if (!message) return;
+
+    const selectedMode = modeSelect.value;
+    appendMessage(`🧑 ${message}`, "user");
+    inputEl.value = "";
+    typing.style.display = "block";
+
+    fetch("/get_response", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: message, mode: selectedMode})
+    })
+    .then(res => res.json())
+    .then(data => {
+        typing.style.display = "none";
+        appendMessage(`🤖 ${data.response}`, "bot");
+    })
+    .catch(() => {
+        typing.style.display = "none";
+        appendMessage("⚠️ I could not connect right now. Please try again in a moment.", "bot");
+    });
+}
+
+function copyLastBotMessage() {
+    if (!lastBotMessage) return;
+    navigator.clipboard.writeText(lastBotMessage).then(() => {
+        appendMessage("📋 Plan copied to clipboard.", "bot");
+    });
+}
+
+function startBreathing() {
+    const breathStatus = document.getElementById("breathStatus");
+    const sequence = [
+        "Inhale... 1 2 3 4",
+        "Hold... 1 2 3 4",
+        "Exhale... 1 2 3 4 5 6"
+    ];
+
+    let step = 0;
+    let rounds = 0;
+    breathStatus.textContent = sequence[step];
+
+    const timer = setInterval(() => {
+        step = (step + 1) % sequence.length;
+        breathStatus.textContent = sequence[step];
+
+        if (step === 0) {
+            rounds += 1;
+        }
+
+        if (rounds >= 3) {
+            clearInterval(timer);
+            breathStatus.textContent = "Great job. You completed 3 calming rounds. 🌿";
+        }
+    }, 4000);
+}
+
+const params = new URLSearchParams(window.location.search);
+const prefill = params.get("prefill");
+const urlMode = params.get("mode");
+if (urlMode && ["auto", "detailed", "timetable"].includes(urlMode)) {
+    modeSelect.value = urlMode;
+}
+if (prefill) {
+    inputEl.value = prefill;
+}
+</script>
+</body>
+</html>
